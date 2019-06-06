@@ -1,0 +1,39 @@
+version: 0.2
+env:
+    variables:
+        NODE_ENV: Development
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 10
+            python: 3.7
+        commands:
+            - USER_BASE_PATH=$(python -m site --user-base)
+            - export PATH=$PATH:$USER_BASE_PATH/bin
+            - pip install --user aws-sam-cli
+            - cd $CODEBUILD_SRC_DIR/api
+            - sam build
+            - cd $CODEBUILD_SRC_DIR/app
+            - npm install
+    build:
+        commands:
+            - cd $CODEBUILD_SRC_DIR/api
+            - sam package --s3-bucket $ARTIFACT_BUCKET_NAME --output-template-file template-output.yaml
+            - cd $CODEBUILD_SRC_DIR/app
+            - npm run build
+artifacts:
+    secondary-artifacts:
+        BuildOutput:
+            files:
+                - api/template-output.yaml
+            discard-paths: yes
+        BundleOutput:
+            files:
+                - "**/*"
+            base-directory: app/build
+cache:
+    paths:
+        - api/*/node_modules/**/*
+        - app/node_modules/**/*
+        - /root/.local/**/*
