@@ -9,9 +9,11 @@ Parameters:
         Type: String
         MaxLength: 100
         MinLength: 1
+        NoEcho: true
     GitHubOAuthToken:
         Description: GitHub personal access token to use to retrieve the source code
         Type: String
+        NoEcho: true
     GitHubOwner:
         Description: GitHub user or organization name
         Type: String
